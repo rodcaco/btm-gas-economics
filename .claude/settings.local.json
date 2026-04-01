@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd BTM Gas Economics v3 UI draft\n\nNew version of the BTM Gas Economics simulator component.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(cp:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

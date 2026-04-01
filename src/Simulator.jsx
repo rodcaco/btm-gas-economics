@@ -164,11 +164,72 @@ function TabLink({ tab, setTab, label }) {
 
 const ttStyle = {background:T.bgCard, border:`1px solid ${T.border}`, borderRadius:4, fontSize:10, color:T.text, fontFamily:sans, boxShadow:"0 2px 8px rgba(0,0,0,0.08)"};
 
+// ─── DEFAULT TAB CONFIG ───
+const DEFAULT_TABS = [
+  { key: "map", label: "Market Map" },
+  { key: "supply", label: "Supply & Demand" },
+  { key: "cost", label: "Delivered Cost" },
+  { key: "thesis", label: "Thesis & Assumptions" },
+  { key: "sources", label: "Sources" },
+];
+
 // ─── MAIN ───
 export default function Simulator() {
   const [p, setP] = useState(DEFAULTS);
   const [tab, setTab] = useState("map");
+  const [tabOrder, setTabOrder] = useState(DEFAULT_TABS);
+  const [draggedTab, setDraggedTab] = useState(null);
+  const [dragOverTab, setDragOverTab] = useState(null);
   const set = useCallback((k,v) => setP(prev=>({...prev,[k]:v})), []);
+
+  // Drag and drop handlers
+  const handleDragStart = useCallback((e, tabKey) => {
+    setDraggedTab(tabKey);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', tabKey);
+    // Make the drag image slightly transparent
+    e.currentTarget.style.opacity = '0.5';
+  }, []);
+
+  const handleDragEnd = useCallback((e) => {
+    e.currentTarget.style.opacity = '1';
+    setDraggedTab(null);
+    setDragOverTab(null);
+  }, []);
+
+  const handleDragOver = useCallback((e, tabKey) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (tabKey !== draggedTab) {
+      setDragOverTab(tabKey);
+    }
+  }, [draggedTab]);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverTab(null);
+  }, []);
+
+  const handleDrop = useCallback((e, targetTabKey) => {
+    e.preventDefault();
+    if (!draggedTab || draggedTab === targetTabKey) return;
+
+    setTabOrder(prev => {
+      const newOrder = [...prev];
+      const draggedIndex = newOrder.findIndex(t => t.key === draggedTab);
+      const targetIndex = newOrder.findIndex(t => t.key === targetTabKey);
+
+      if (draggedIndex === -1 || targetIndex === -1) return prev;
+
+      // Remove dragged item and insert at new position
+      const [removed] = newOrder.splice(draggedIndex, 1);
+      newOrder.splice(targetIndex, 0, removed);
+
+      return newOrder;
+    });
+
+    setDraggedTab(null);
+    setDragOverTab(null);
+  }, [draggedTab]);
 
   const model = useMemo(() => {
     const res = [];
@@ -205,15 +266,49 @@ export default function Simulator() {
 
   const c = model[0];
 
-  const tabBtn = (key, label) => (
-    <button key={key} onClick={()=>setTab(key)} style={{
-      padding:"8px 14px", fontSize:10, fontWeight:600, fontFamily:sans, letterSpacing:0.4, cursor:"pointer",
-      background: tab===key ? T.bgCard : "transparent", color: tab===key ? T.navy : T.textLight,
-      border: tab===key ? `1px solid ${T.border}` : "1px solid transparent",
-      borderBottom: tab===key ? `1px solid ${T.bgCard}` : "none",
-      borderRadius: tab===key ? "4px 4px 0 0" : 0, marginBottom: tab===key ? -1 : 0, position:"relative", zIndex: tab===key ? 1 : 0,
-    }}>{label}</button>
-  );
+  const tabBtn = (key, label) => {
+    const isActive = tab === key;
+    const isDragging = draggedTab === key;
+    const isDragOver = dragOverTab === key;
+
+    return (
+      <button
+        key={key}
+        draggable
+        onClick={() => setTab(key)}
+        onDragStart={(e) => handleDragStart(e, key)}
+        onDragEnd={handleDragEnd}
+        onDragOver={(e) => handleDragOver(e, key)}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, key)}
+        style={{
+          padding: "8px 14px",
+          fontSize: 10,
+          fontWeight: 600,
+          fontFamily: sans,
+          letterSpacing: 0.4,
+          cursor: isDragging ? "grabbing" : "grab",
+          background: isActive ? T.bgCard : "transparent",
+          color: isActive ? T.navy : T.textLight,
+          border: isActive ? `1px solid ${T.border}` : "1px solid transparent",
+          borderBottom: isActive ? `1px solid ${T.bgCard}` : "none",
+          borderRadius: isActive ? "4px 4px 0 0" : 0,
+          marginBottom: isActive ? -1 : 0,
+          position: "relative",
+          zIndex: isActive ? 1 : 0,
+          opacity: isDragging ? 0.5 : 1,
+          transform: isDragOver ? "scale(1.05)" : "scale(1)",
+          boxShadow: isDragOver ? `0 0 0 2px ${T.app}40` : "none",
+          transition: "transform 0.15s ease, box-shadow 0.15s ease",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 8, opacity: 0.4, cursor: "grab" }}>⋮⋮</span>
+          {label}
+        </span>
+      </button>
+    );
+  };
 
   // Shared P / Strong / Section for thesis + sources
   const P = ({children}) => <p style={{fontSize:12, lineHeight:1.75, color:T.text, marginBottom:10, fontFamily:sans}}>{children}</p>;
@@ -245,13 +340,12 @@ export default function Simulator() {
         <div style={{fontSize:9, color:"#64748b", fontFamily:mono}}>DECA · INTERNAL USE · MARCH 2026</div>
       </div>
 
-      {/* TABS */}
+      {/* TABS - Draggable */}
       <div style={{borderBottom:`1px solid ${T.border}`, padding:"0 24px", display:"flex", gap:2, background:T.bgAccent}}>
-        {tabBtn("map","Market Map")}
-        {tabBtn("supply","Supply & Demand")}
-        {tabBtn("cost","Delivered Cost")}
-        {tabBtn("thesis","Thesis & Assumptions")}
-        {tabBtn("sources","Sources")}
+        {tabOrder.map(t => tabBtn(t.key, t.label))}
+        <span style={{marginLeft:"auto", fontSize:8, color:T.textLight, alignSelf:"center", fontFamily:sans, opacity:0.6}}>
+          drag to reorder
+        </span>
       </div>
 
       {/* ═══════ MARKET MAP ═══════ */}
