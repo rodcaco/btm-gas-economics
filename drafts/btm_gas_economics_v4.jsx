@@ -147,7 +147,7 @@ function Ref({id, setTab}) {
   return <sup onClick={()=>setTab("src")} style={{cursor:"pointer", color:"#2563eb", fontSize:"0.75em", fontWeight:400}}>[{id}]</sup>;
 }
 
-export default function Simulator() {
+export default function App() {
   const [p, setP] = useState(D);
   const [tab, setTab] = useState("map");
   const s = useCallback((k,v) => setP(x=>({...x,[k]:v})), []);
