@@ -243,6 +243,42 @@ export default function Simulator() {
       .tab-btn.dragging { opacity: 0.4; cursor: grabbing; }
       .tab-btn.drag-over-left { transform: translateX(8px); }
       .tab-btn.drag-over-right { transform: translateX(-8px); }
+
+      /* Responsive grid classes */
+      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+      .flex-params { display: flex; gap: 32px; flex-wrap: wrap; justify-content: space-between; }
+
+      /* Mobile styles */
+      @media (max-width: 768px) {
+        .lx-container { padding: 0 16px 40px !important; }
+        .lx-title { font-size: 18px !important; }
+        .lx-subtitle { font-size: 12px !important; }
+        .grid-2col { grid-template-columns: 1fr !important; gap: 20px !important; }
+        .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab-btn { padding: 7px 12px; font-size: 10px; white-space: nowrap; }
+        .lx-body { font-size: 11px; text-align: left; }
+        .lx-tab { font-size: 9.5px; }
+        .lx-tab th, .lx-tab td { padding: 3px 4px; }
+        .lx-h3 { font-size: 11px; }
+        .lx-fn { font-size: 9px; }
+        .waterfall-label { width: 90px !important; font-size: 8.5px !important; }
+        .waterfall-value { width: 60px !important; font-size: 9px !important; }
+        .pipe-label { width: 80px !important; font-size: 7.5px !important; }
+        .flex-params { gap: 16px !important; }
+        .param-group { min-width: 100% !important; }
+        .big-number { font-size: 22px !important; }
+        .chart-container { height: 200px !important; }
+        .lx-footer { justify-content: center !important; text-align: center; }
+      }
+
+      @media (max-width: 480px) {
+        .lx-container { padding: 0 12px 30px !important; }
+        .lx-title { font-size: 16px !important; }
+        .tab-btn { padding: 6px 10px; font-size: 9px; }
+        .waterfall-label { width: 70px !important; font-size: 8px !important; }
+        .big-number { font-size: 20px !important; }
+        .lx-footer { flex-direction: column; align-items: center; }
+      }
     `;
     document.head.appendChild(style);
   }, []);
@@ -251,11 +287,11 @@ export default function Simulator() {
   const chartClr = { pA:"#b45309", aA:"#6b7280", aB:"#276749", aC:"#7c3aed", hh:"#bbb", ngl:"#be185d" };
 
   return (
-    <div className="lx" style={{background:"#fff", minHeight:"100vh", maxWidth:960, margin:"0 auto", padding:"0 40px 60px"}}>
+    <div className="lx lx-container" style={{background:"#fff", minHeight:"100vh", maxWidth:960, margin:"0 auto", padding:"0 40px 60px"}}>
       {/* TITLE */}
       <div style={{textAlign:"center", padding:"32px 0 20px"}}>
-        <div style={{fontSize:22, fontWeight:700}}>Behind-the-Meter Gas Economics</div>
-        <div style={{fontSize:14, marginTop:2}}>Permian Basin vs. Appalachian Basin</div>
+        <div className="lx-title" style={{fontSize:22, fontWeight:700}}>Behind-the-Meter Gas Economics</div>
+        <div className="lx-subtitle" style={{fontSize:14, marginTop:2}}>Permian Basin vs. Appalachian Basin</div>
         <div style={{fontSize:11, color:"#666", marginTop:6}}>Internal Working Model &middot; {p.dcCapacityMW} MW Reference Case &middot; March 2026</div>
         <hr className="lx-rule" style={{maxWidth:200, margin:"14px auto 0"}} />
       </div>
@@ -325,7 +361,7 @@ export default function Simulator() {
       {tab==="map" && <div style={{marginTop:16}}>
 
         {/* ── COST WATERFALLS — the headline ── */}
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:28, marginBottom:28}}>
+        <div className="grid-2col" style={{marginBottom:28}}>
 
           {/* PERMIAN WATERFALL */}
           <div>
@@ -343,17 +379,17 @@ export default function Simulator() {
               const maxW = Math.max(total, 6);
               return items.map((item,i) => (
                 <div key={i} style={{display:"flex", alignItems:"center", gap:0, marginBottom:5}}>
-                  <span style={{fontSize:9.5, color:"#666", width:120, textAlign:"right", paddingRight:10}}>{item.l}</span>
+                  <span className="waterfall-label" style={{fontSize:9.5, color:"#666", width:120, textAlign:"right", paddingRight:10}}>{item.l}</span>
                   <div style={{flex:1, height:16, background:"#f5f3ef", position:"relative"}}>
                     <div style={{width:`${(item.v/maxW)*100}%`, height:"100%", background:item.color, opacity:0.65, transition:"width 0.3s"}} />
                   </div>
-                  <span className="lm" style={{fontSize:10, fontWeight:600, width:70, textAlign:"right", paddingLeft:6}}>{item.note}</span>
+                  <span className="lm waterfall-value" style={{fontSize:10, fontWeight:600, width:70, textAlign:"right", paddingLeft:6}}>{item.note}</span>
                 </div>
               ));
             })()}
             <div style={{borderTop:"1.5px solid #111", marginTop:8, paddingTop:6, display:"flex", justifyContent:"space-between", alignItems:"baseline"}}>
               <span style={{fontSize:10, color:"#888"}}>All-in delivered cost</span>
-              <span><span className="lm" style={{fontSize:26, fontWeight:700, color:"#333"}}>{$(c.pA)}</span><span style={{fontSize:10, color:"#888"}}> /MMBtu</span></span>
+              <span><span className="lm big-number" style={{fontSize:26, fontWeight:700, color:"#333"}}>{$(c.pA)}</span><span style={{fontSize:10, color:"#888"}}> /MMBtu</span></span>
             </div>
             <div style={{display:"flex", gap:12, marginTop:8}}>
               <span style={{fontSize:9, color:"#999"}}>Annual fuel cost ({p.dcCapacityMW} MW):</span>
@@ -383,17 +419,17 @@ export default function Simulator() {
               ];
               return items.map((item,i) => (
                 <div key={i} style={{display:"flex", alignItems:"center", gap:0, marginBottom:5}}>
-                  <span style={{fontSize:9.5, color:item.neg?"#b04060":"#666", width:120, textAlign:"right", paddingRight:10, fontStyle:item.neg?"italic":"normal"}}>{item.l}</span>
+                  <span className="waterfall-label" style={{fontSize:9.5, color:item.neg?"#b04060":"#666", width:120, textAlign:"right", paddingRight:10, fontStyle:item.neg?"italic":"normal"}}>{item.l}</span>
                   <div style={{flex:1, height:16, background:item.neg?"#fdf2f5":"#f3f6f9", position:"relative"}}>
                     <div style={{width:`${(item.v/maxW)*100}%`, height:"100%", background:item.color, opacity:item.neg?0.4:0.55, transition:"width 0.3s", ...(item.neg?{backgroundImage:"repeating-linear-gradient(135deg, transparent, transparent 2px, rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 4px)"}:{}) }} />
                   </div>
-                  <span className="lm" style={{fontSize:10, fontWeight:600, width:70, textAlign:"right", paddingLeft:6, color:item.neg?"#b04060":"inherit"}}>{item.note}</span>
+                  <span className="lm waterfall-value" style={{fontSize:10, fontWeight:600, width:70, textAlign:"right", paddingLeft:6, color:item.neg?"#b04060":"inherit"}}>{item.note}</span>
                 </div>
               ));
             })()}
             <div style={{borderTop:"1.5px solid #111", marginTop:8, paddingTop:6, display:"flex", justifyContent:"space-between", alignItems:"baseline"}}>
               <span style={{fontSize:10, color:"#888"}}>Model B all-in delivered</span>
-              <span><span className="lm" style={{fontSize:26, fontWeight:700, color:"#333"}}>{$(c.aB)}</span><span style={{fontSize:10, color:"#888"}}> /MMBtu</span></span>
+              <span><span className="lm big-number" style={{fontSize:26, fontWeight:700, color:"#333"}}>{$(c.aB)}</span><span style={{fontSize:10, color:"#888"}}> /MMBtu</span></span>
             </div>
             {/* Other models inline */}
             <div style={{display:"flex", gap:0, marginTop:8, borderTop:"0.5px solid #ddd", borderBottom:"0.5px solid #ddd"}}>
@@ -414,7 +450,7 @@ export default function Simulator() {
 
         {/* ── SUPPLY CHAIN — annotated tables ── */}
         <div className="lx-body">
-          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:28}}>
+          <div className="grid-2col">
             <div>
               <div className="lx-h3" style={{marginTop:0}}>Permian supply chain (Model A)</div>
               <div className="lx-tab-wrap"><table className="lx-tab lm" style={{fontSize:10}}>
@@ -446,7 +482,7 @@ export default function Simulator() {
           </div>
 
           {/* Pipeline bars side by side */}
-          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:28, marginTop:16}}>
+          <div className="grid-2col" style={{marginTop:16}}>
             {[
               {title:"Permian egress additions", pipes:P_PIPES, color:"#8b5e3c", total:P_PIPES.reduce((a,x)=>a+x.c,0)},
               {title:"Appalachian egress additions", pipes:A_PIPES, color:"#2c5f7c", total:A_PIPES.reduce((a,x)=>a+x.c,0)},
@@ -455,7 +491,7 @@ export default function Simulator() {
                 <div style={{fontSize:9.5, textTransform:"uppercase", letterSpacing:"0.06em", color:"#888", marginBottom:6}}>{basin.title} &mdash; {basin.total.toFixed(1)} Bcf/d</div>
                 {basin.pipes.map((pipe,i) => (
                   <div key={i} style={{display:"flex", alignItems:"center", gap:0, marginBottom:2}}>
-                    <span className="lm" style={{fontSize:8.5, color:"#777", width:118, textAlign:"right", paddingRight:8, overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis"}}>{pipe.n}</span>
+                    <span className="lm pipe-label" style={{fontSize:8.5, color:"#777", width:118, textAlign:"right", paddingRight:8, overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis"}}>{pipe.n}</span>
                     <div style={{flex:1, height:10, background:"#f5f3ef", position:"relative"}}>
                       <div style={{width:`${(pipe.c/4)*100}%`, height:"100%", background:basin.color, opacity:0.45}} />
                     </div>
@@ -471,7 +507,7 @@ export default function Simulator() {
         {/* ── Knobs ── */}
         <div style={{borderTop:"1.5px solid #111", paddingTop:14, marginTop:20}}>
           <div className="lx" style={{fontSize:12, fontWeight:700, color:"#333", marginBottom:12}}>Adjustable Parameters</div>
-          <div style={{display:"flex", gap:32, flexWrap:"wrap", justifyContent:"space-between"}}>
+          <div className="flex-params">
             {[
               {title:"Permian Basis", color:"#8b5e3c", knobs:[
                 {l:"Waha H1 '26",k:"wahaBasis2026H1",min:-6,max:0,step:0.1},
@@ -499,9 +535,9 @@ export default function Simulator() {
                 {l:"C NGL Split",k:"modelCNGLShare",min:0.1,max:0.7,step:0.05,u:""},
               ]},
             ].map(g => (
-              <div key={g.title}>
+              <div key={g.title} className="param-group">
                 <div style={{fontSize:8.5, fontWeight:700, letterSpacing:"0.07em", color:g.color, textTransform:"uppercase", marginBottom:8}}>{g.title}</div>
-                <div style={{display:"flex", gap:12}}>
+                <div style={{display:"flex", gap:12, flexWrap:"wrap"}}>
                   {g.knobs.map(k => <Knob key={k.k} label={k.l} value={p[k.k]} onChange={v=>s(k.k,v)} min={k.min} max={k.max} step={k.step} unit={k.u||"$"} color={g.color} />)}
                 </div>
               </div>
@@ -544,7 +580,7 @@ export default function Simulator() {
 
         {/* ── PRODUCTION VS EGRESS TRAJECTORIES ── */}
         <div className="lx-h2">2.3 &ensp;Production vs. Egress Capacity</div>
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:24}}>
+        <div className="grid-2col">
           <div>
             <div className="lx-h3">Permian (Bcf/d)</div>
             <ResponsiveContainer width="100%" height={200}>
@@ -607,7 +643,7 @@ export default function Simulator() {
 
         {/* ── BASIS IMPLICATIONS ── */}
         <div className="lx-h2">2.5 &ensp;Basis Implications</div>
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:24}}>
+        <div className="grid-2col">
           {[{k:"wb",title:"Waha Basis to Henry Hub",c:"#b45309",note:"Permian egress overbuild drives basis toward zero. The extreme negative pricing of 2024\u20132026 is a temporary phenomenon. By 2028, ~17 Bcf/d of new egress serves ~4\u20136.5 Bcf/d of production growth. The Waha discount as a fuel cost advantage is transient."},
             {k:"ab",title:"Appalachian Basis to Henry Hub",c:"#1d4ed8",note:"Appalachian basis tightens gradually, driven by demand growth outpacing limited new egress. Unlike the Permian (one-time pipe events), this is a secular trend. EQT CFO (mid-2025): \u201CWe are as confident as ever that Appalachian basis should structurally tighten through the end of the decade.\u201D The discount as a fuel cost advantage is durable but narrowing."}
           ].map(b=>(
@@ -795,7 +831,7 @@ export default function Simulator() {
       </div>}
 
       {/* FOOTER */}
-      <div style={{marginTop:40, paddingTop:12, borderTop:"0.6px solid #111", display:"flex", justifyContent:"space-between", fontSize:9, color:"#999"}}>
+      <div className="lx-footer" style={{marginTop:40, paddingTop:12, borderTop:"0.6px solid #111", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:8, fontSize:9, color:"#999"}}>
         <span>Deca &middot; Internal Use Only</span>
         <span>Rodolfo Baquerizo</span>
         <span>Prepared March 2026</span>
