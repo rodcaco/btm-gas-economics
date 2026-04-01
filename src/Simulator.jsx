@@ -695,7 +695,7 @@ export default function Simulator() {
                     <div style={{minWidth:32}}><span style={{fontSize:10, fontWeight:700, fontFamily:mono, color:T.app, background:T.appBg, padding:"2px 4px", borderRadius:2}}>{src.id}</span></div>
                     <div style={{flex:1}}>
                       <div style={{fontSize:11, fontWeight:600, color:T.text, fontFamily:sans, marginBottom:2}}>{src.full}</div>
-                      <div style={{fontSize:10, color:T.app, fontFamily:mono, wordBreak:"break-all"}}>{src.url}</div>
+                      <a href={src.url} target="_blank" rel="noopener noreferrer" style={{fontSize:10, color:T.app, fontFamily:mono, wordBreak:"break-all", textDecoration:"none", display:"block"}} onMouseOver={e=>e.target.style.textDecoration="underline"} onMouseOut={e=>e.target.style.textDecoration="none"}>{src.url}</a>
                     </div>
                     <div style={{display:"flex", gap:3, flexShrink:0, flexWrap:"wrap", maxWidth:200}}>
                       {src.tabs.map(t => (
